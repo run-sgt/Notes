@@ -429,3 +429,37 @@ linux中一个点和两个点的含义
 			[root@sgt /etc/sysconfig]# cd network-scripts/  	相对
 ```
 
+#### 文件管理基础命令
+
+##### cd 切换目录
+
+```
+cd 						切换到当前用户的家目录下
+cd ~					切换到当前用户的家目录下
+cd /					切换到根目录下
+cd /etc/sysconfig/ 		切换到指定绝对路径下
+cd .					保持当前目录
+cd ..					切换到当前目录的上一级目录
+cd -					切换到上一次的目录
+```
+
+##### pwd 显示当前路径
+
+##### tree 文件树
+
+**Linux中以.开头的文件都是隐藏文件**
+
+需要安装 
+
+```
+yum install -y tree
+```
+
+```
+tree -L 1 / 			查看深度，层级，后面跟的是正整数
+tree -d	/var/log		只显示目录
+tree -f /var/log		只显示文件(以绝对路径显示)
+tree -F /var/log		给目录加个标识符，用来区分目录和文件
+tree -a /var/log		显示隐藏文件
+```
+
