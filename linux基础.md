@@ -447,7 +447,7 @@ cd -					切换到上一次的目录
 
 ##### tree 文件树
 
-**Linux中以.开头的文件都是隐藏文件**
+Linux中以.开头的文件都是隐藏文件
 
 需要安装 
 
@@ -461,5 +461,198 @@ tree -d	/var/log		只显示目录
 tree -f /var/log		只显示文件(以绝对路径显示)
 tree -F /var/log		给目录加个标识符，用来区分目录和文件
 tree -a /var/log		显示隐藏文件
+```
+
+##### ls 文件列表
+
+```
+ls /var/log				显示目录列表
+ls -l /var/log 			以长格式显示目录列表，可简写成ll /var/log
+ll -d /var/log			只显示目录本身信息
+ll -a /var/log			显示所有文件，包括隐藏文件
+ll -h /var/log  		以人类可读的形式显示
+ll -t /var/log  		按从后到前时间排序显示
+ll -rt /var/log			按从前到后时间排序显示
+ls -F /var/log			给显示的目录加个标识符'/'
+ls -i /var/log			显示inode号
+ll -S /var/log			根据文件大小排序
+ll -1 /var/log			显示列表
+```
+
+##### mkdir 创建目录
+
+```
+在Linux中一切皆文件，所有说目录和文件统称为文件
+mkdir test				创建单级目录，文件存在会报错
+mkdir -p test			创建目录，文件存在不操作，文件不存在创建
+mkdir -v test			创建目录，显示过程
+mkdir -p test/data		创建级联目录，文件存在不创建，不存在创建
+mkdir -pv test/data		创建级联目录并显示过程
+-p选项可以让文件创建过程中，如果文件存在则不操作，存在就创建，所以在创建目录时候最好加上该选项
+mkdir -m 700 data		创建目录，给该目录赋予权限
+mkdir oldboy_{mac,jason,tank}	一次创建多个目录
+mkdir oldboy_{01..05}			创建序列，一次创建多个目录，目录名以01-05结尾
+mkdir oldboy_{a..e}				创建序列，一次创建多个目录，目录名以a-e结尾
+
+mkdir 'test '			创建的目录是可以带空格的，这样使用普通的ll查看文件就会出现2个相同的test文件
+						其实这2个文件是不同的，只是有一个带空格，看不出来，此时使用ll -F看出区别
+```
+
+##### touch 创建文件
+
+Linux中文件或目录是分大小写的
+
+创建文件，如果有同名文件或目录，则不能创建，但会修改已存在同名的创建时间
+
+```
+touch hello.txt					创建文件
+touch hello{shj,lzp,fxx}.txt	创建多文件
+touch hello{01..05}.txt			创建文件序列，一次性创建有规律的文件
+```
+
+##### cp 复制
+
+```
+cp -r oldboy /opt/			递归复制
+cp -p oldboy /opt/			保持属性
+cp /etc/rc.local /opt/		复制绝对路径下rc.local到opt目录，他会将rc.local非软链接文件复制过去
+cp -d oldboy /opt/			复制软链接
+cp -a						复制，等效-pdr
+cp -t 						将原目标与目标位置交换
+cp命令系统系统自带别名cp -i	 自带交互式，所以复制目标目录如果文件已存在会出现询问覆盖
+cp oldboy.log /opt/			将当前文件下的oldboy.log复制到opt目录下，
+							如果oldboy.log在opt目录下存在，会先询问是否覆盖
+\cp oldboy.log /opt/		让别名失效，这个如果oldboy.log在opt目录下存在，会直接覆盖
+
+```
+
+##### mv 移动 默认级联
+
+```
+mv a.txt /opt/				移动，存在会询问
+mv test/ /opt/				移动多级目录不存在级联，直接可以移动
+mv -f a.txt /opt/			强制移动，覆盖
+mv -t						将原目标与目标位置交换
+mv a.txt b.tt				重命名
+```
+
+##### rm 删除
+
+```
+rm a.txt					带提示删除
+rm -f a.txt					直接删除
+rm -rf test/				递归删除
+rm -rf oldboy*				匹配删除
+rm -rf ./*					删除当前目录下所有
+rm -rf ./ *
+
+设置rm命令不能用
+alias rm='ehco rm command avalid'
+```
+
+##### echo 打印
+
+```
+echo hello world		不加引号，出现空格不会看作整体，会解析变量，支持通配符
+echo -e 				支持一些特殊符号的功能
+echo -e "hello\nworld"
+echo 'hello world'		单引号，强引用，真正的所见即所得
+echo "$PS1"				双引号，弱引用，支持变量，会解析变量
+echo `hostname`			反引号，先执行反引号里面的命令，把结果交给外面命令，和$()作用一样
+echo hello world >a.txt	将hello world 写入a.txt文件中(存在，清空覆盖),a.txt没有会新建
+echo hello world >>a.txt	将hello world 写入a.txt文件中(存在，追加)，a.txt没有会新建
+```
+
+##### cat 查看文件
+
+```
+cat /root/a.txt		查看文件内容
+cat -n a.txt		显示行号
+cat -A a.txt		给每一行的结尾加标识符
+cat >a.txt<<EOF		创建a.txt文件，然后用EOF为写入结束符，然后写入信息，EOF结束，表示写入结束
+	hello
+	bye
+	EOF
+cat >>a.txt<<'EOF'	给EOF加引号会解决一个坑，就是写入的信息包含特殊符号时候，比如$add-info2,这样就						会正常写入，不然会没有
+	add-info1
+	$add-info2
+	EOF
+	
+```
+
+##### more 分页显示文件内容
+
+```
+more a.txt
+more -5 a.txt			一页显示5行
+more +7 a.txt			从第7行开始显示
+空格|f				  下一页
+b 			  		   上一页
+回车					  下一行
+/						搜索
+=						显示当前光标所在行
+q						退出
+查看文件后自动退出
+```
+
+##### less 分页显示文件内容
+
+```
+less a.txt
+less -N a.txt	显示带行号
+/						搜索，会高亮显示，n向下查找，N向上查找
+=						显示当前光标所在行，会显示第几行到第几行、字节大小
+其他和more差不多
+```
+
+##### head 显示文件头部信息
+
+```
+head a.txt			默认显示前10行内容
+head -n 6			取消默认输出，指定显示前6行
+head -6				取消默认输出，指定显示前6行
+head -c	5			显示头部5个字符
+```
+
+##### tail 显示文件尾部信息
+
+```
+tail a.txt				默认显示最后10行内容
+tail -n 6 a.txt			取消默认输出，指定显示最后6行
+tail -6	a.txt			取消默认输出，指定显示最后6行
+tail -c	5 a.txt			显示尾部5个字符(包含换行符)
+tail -f a.txt			[*****]实时显示文件尾部信息，当a.txt不存在就会报错退出
+tail -F a.txt			[*****]实时显示文件尾部信息，当a.txt不存在就会报错但是不报错
+						会一直尝试查看，不会退出
+tailf a.txt				实时查看文件内容更新，在磁盘不更新时，不会读取磁盘，减少磁盘的读写频率
+```
+
+##### grep 文本处理工具 过滤
+
+```
+grep root passwd	过滤passwd文件中包含root信息的所有行
+grep -i				忽略大小写
+grep -v				排除
+grep -n 			给过滤出来的内容，加上所在文件中的行号
+grep -c				统计过滤出的内容有几行
+grep -w				精确匹配，只过滤要过滤出来的字符，而不是包含该字符的字符串
+grep -o 			只显示过滤出来的内容
+grep ^root passwd	过滤passwd文件中以root开头的字符所有行
+grep root$ passwd	过滤passwd文件中以root结尾的字符所有行
+grep -n '^$' passwd	过滤空行,并显示该空行的行号
+grep -E 'root|halt' passwd	过滤含root或者halt的
+egrep 'root|halt' passwd	过滤含root或者halt的
+grep -A 2 'halt' passwd		匹配过滤显示出来的内容在向下匹配2行
+grep -B 3 'halt' passwd		匹配过滤显示出来的内容在向上匹配3行
+grep -C 2 'halt' passwd		匹配过滤显示出来的内容在向上向下各匹配2行
+
+正则
+	^ 		以什么开头
+    $ 		以什么结尾
+    ^$ 		空行
+    . 		匹配任意一个字符
+    * 		前面一个字符出现0此或0此以上
+    .* 		所有
+    [] 		整体，包含[]里面的字符
 ```
 
