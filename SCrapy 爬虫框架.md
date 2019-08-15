@@ -213,7 +213,7 @@ class AmazonSpider(scrapy.Spider):  # 自定义类，继承Spiders提供的基�
         pass
 ```
 
-#### class scrapy.spiders.Spider
+#### scrapy.spiders.Spider
 
 这是最简单的spider类，任何其他的spider类都需要继承它（包含你自己定义的）。
 
@@ -233,5 +233,24 @@ class AmazonSpider(scrapy.Spider):
     } 
     def parse(self, response):
         pass
+```
+
+```
+1.name = 'papa'
+定义爬虫名称，scrapy会根据该值定位到该爬虫程序,所以必须唯一
+2.allowed_domains = ['www.amazon.cn']
+定义允许爬取的域名，如果OffsiteMiddleware启动（默认就启动），那么不在列表中的域名及其子域名都不能爬取
+比如爬取的网址为：https://www.example.com/1.html，那就添加'example.com'到列表.
+3.start_urls = ['http://www.amazon.cn/']
+如果没有指定url，就从该列表中读取url来生成第一个请求
+4.custom_settings
+定义一些配置信息，在运行爬虫程序时，这些配置会覆盖项目级别的配置
+所以custom_settings必须被定义成一个类属性，由于settings会在类实例化前被加载
+5.settings
+通过self.settings['配置项的名字']可以访问settings.py中的配置，如果自己定义了custom_settings还是以自己的为准
+6.logger
+日志名默认为spider的名字
+self.logger.debug('=============>%s' %self.settings['BOT_NAME'])
+
 ```
 
