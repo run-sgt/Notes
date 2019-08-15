@@ -1,3 +1,14 @@
+## 日常上传：
+
+```
+git add .
+git commit -m '更新1'
+git pull origin master
+git push origin master
+```
+
+
+
 ### 密钥路径 
 
 ```
