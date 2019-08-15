@@ -140,6 +140,7 @@ Linux操作系统 = Linux 内核 + GNU软件及其系统软件 + 必要的应用
 1.网卡命名规则
 	安装系统最一开始需要对网卡设置命名规则，这样以后添加网卡的时候就会从ech0开始
 	net.ifnames=0
+	(后续查看网卡信息命令目录 cd /etc/sysconfig/network-scripts/)
 2.分区规则
 	在进行分区时候一般分三个区/boot|swap|/
 	/boot 引导分区500-1024MB
@@ -172,6 +173,18 @@ iterm2
 
 ### linux系统命令基础
 
+#### 个性化
+
+```
+vi /etc/bashrc
+G
+o
+PS1="\[\e[37;40m\][\[\e[32;1m\]\u\[\e[37;40m\]@\h \[\e[36;40m\]\w\[\e[0m\]]\[\e[32;1m\]\\$ \[\e[0m\]"
+esc键
+:wq
+source   /etc/bashrc
+```
+
 #### bash shell
 
 ```
@@ -187,11 +200,8 @@ iterm2
 1.tab命令补全
 	选项补全
 	参数补全	
-2.历史命令
+2.历史命令(下文有详细说明)
 	history  查看历史命令的记录
-		-c	 清空所有的历史命令
-        -w	 把历史命令放在文件中  .bash_history
-        -d   指定删除id
 ```
 
 #### 命令行结构
@@ -222,5 +232,139 @@ ls  命令
 
 1.命令和选项和参数之间至少要有一个空格。
 2.选项前面有短横杠和长横杠
+```
+
+#### 常用快捷键
+
+```
+ctrl+c 	终止当前的操作
+ctrl+d 	退出当前登录的用户
+ctrl+l 	清屏，置顶
+ctrl+a 	将当前光标所在位置移动到命令行行首
+ctrl+e 	将当前光标所在位置移动到命令行行尾
+ctrl+u 	删除当前光标所在位置向前的所有字符
+ctrl+k 	删除当前光标所在位置向后的所有字符
+ctrl+y 	粘贴剪切板上的所有内容
+ctrl+w 	删除当前光标所在位置向前的一组字符串
+ctrl+方向键 向左或向右移动一组字符串
+ctrl+r	搜索历史命令
+ctrl+z	把当前的任务放到后台运行
+(查看ping命令进程 ps -ef|grep ping)
+ctrl+r	锁屏
+ctrl+q	解锁
+esc+.	使用上一条命令的最后参数
+!! 		执行上一条命令
+！ls		执行最近的一次以ls开头的命令
+```
+
+#### 历史记录命令
+
+```
+history  查看历史命令的记录
+history -c	 清空所有的历史命令
+history -w	 把历史命令放在文件中  .bash_history
+	使用 cat .bash_history 进行查看
+history -d   指定删除id
+```
+
+#### 别名
+
+将一段命令起个名字，这样直接输入这个名字就代表输入了这行命令
+
+```
+定义别名
+alias p_baidu='ping baidu.com'
+使用别名
+p_baidu
+取消别名
+unalias p_baidu
+```
+
+**查看系统自带别名**
+
+```
+[root@sgt ~]# alias
+alias cp='cp -i'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias grep='grep --color=auto'
+alias l.='ls -d .* --color=auto'
+alias ll='ls -l --color=auto'
+alias ls='ls --color=auto'
+alias mv='mv -i'
+alias p_baidu='ping baidu.com'
+alias rm='rm -i'
+alias which='alias | /usr/bin/which --tty-only --read-alias --show-dot --show-tilde'
+```
+
+#### 查看命令帮助信息
+
+```
+man 查看所有命令信息
+help 查看内置命令的帮助信息
+-h
+--help
+info # 显示命令帮助信息
+```
+
+##### 几个查询命令帮助信息的网站
+
+```
+https://man.linuxde.net/
+http://linux.51yip.com/
+```
+
+#### 关机与重启命令
+
+##### 关机
+
+```
+shutdown -h
+	shutdown -h 0 0分钟后关机，立刻关机
+	shutdown -h 5 5分钟后关机
+	shutdown -h 14:00 在14:00执行关机
+	shutdown -c 取消关机命令
+poweroff 关机
+halt 关机，只关闭系统不关闭电源
+	halt -p 关闭电源
+init 0 切换运行级别关机
+```
+
+##### 重启
+
+```
+shutdown -r
+    shutdown -r 0 立刻重启
+    shutdown -r 2 2分钟后重启
+    shutdown -r 15:00 在15:00执行重启
+reboot 重启
+init 6 切换运行级别重启
+```
+
+##### 注销
+
+```
+logout 		注销 不能退出非登录式shell
+exit 		退出当前用户
+ctrl + d 	快捷键注销
+```
+
+#### 显示IP地址命令
+
+```
+ip a
+    ip a		 显示所有网卡的ip地址
+    ip a s eth0  显示eth0网卡的ip地址(ip a show eth0的简写)
+
+ifconfig
+	需要先安装net-tools：yum install -y net-tools
+    ifconfig 		查看所有
+    ifconfig eth0	查看eth0网卡ip地址
+    
+hostname 本身显示主机名的命令
+	hostname -i 查看所有网卡mac地址 内网、外网ip地址
+		fe80::de5e:fc76:8350:f42f%eth0 fe80::4e14:fc9e:4e93:1be5%eth1 10.0.0.100 172.16.1.100
+	hostname -I 只查看所有网卡内网、外网ip地址
+		10.0.0.100 172.16.1.100
 ```
 
