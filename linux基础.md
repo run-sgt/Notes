@@ -368,3 +368,64 @@ hostname 本身显示主机名的命令
 		10.0.0.100 172.16.1.100
 ```
 
+### 文件管理
+
+#### CentOS Linux系统文件目录结构
+
+```
+/bin -> usr/bin 			普通命令的目录(带软链接)
+/boot						引导目录
+/dev						设备目录
+  |__ /dev/cdrom sr0 			光驱，光盘 *
+  |__ /dev/random				产生随机数 *
+  |__ /dev/zero					源源不断产生数据
+  |__ /dev/pts/					虚拟终端
+  |__ /dev/sd*					磁盘分区
+  |__ /dev/stderr				错误输出2
+  |__ /dev/stdin				标准输入0
+  |__ /dev/stdout				标准输入1
+  |__ /dev/null					黑洞 *
+/etc						配置文件目录
+  |__ /etc/sysconfig/network-scripts/ifcfg-eth0		网卡配置文件 *
+  |__ /etc/hostname									主机名配置文件
+  |__ /etc/resolv.conf								本地的DNS配置文件
+  |__ /etc/fstab									挂载设备目录
+  |__ /etc/sysconfig/selinux						安全策略
+  |__ /etc/motd										登录系统前显示的自定义内容
+  |__ /etc/hosts									本地域名解析文件
+/home						所有普通用户的家目录 /home/username
+/lib -> usr/lib				库文件 32位
+/lib64 -> usr/lib64			库文件 64位
+/media						挂载点，可移动设备
+/mnt						临时挂载点
+/opt						早期第三方软件安装目录(现在已经很少使用)
+/proc						虚拟信息，存放系统实时状态信息
+/root						超级管理员的家目录
+/run						程序运行产生的pid文件存放点
+/sbin -> usr/sbin			超级管理员使用的命令目录(带软链接)
+/srv						物理设备的信息(平时用不到)
+/sys						物理设备
+/tmp						文件的临时存放点
+/usr						安装软件目录 *
+  |__ /usr/local				默认常用目录
+/var						可变目录
+  |__ /var/run				pid文件
+  |__ /var/log				日志
+  |__ /var/log/messages		系统日志
+  |__ /var/log/secure		用户登录日志
+```
+
+#### 路径的定位
+
+```
+linux中一个点和两个点的含义
+	. 		表示当前目录
+	.. 		表示当前目录的上一级目录
+绝对路径与相对路径
+	以根为开头的路径--->绝对路径，否则--->相对路径
+		tips:以~开头的也是绝对路径
+		示例：
+			[root@sgt ~]# cd /etc/sysconfig/					绝对
+			[root@sgt /etc/sysconfig]# cd network-scripts/  	相对
+```
+
