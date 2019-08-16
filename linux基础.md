@@ -541,7 +541,7 @@ mv a.txt b.tt				重命名
 ```
 rm a.txt					带提示删除
 rm -f a.txt					直接删除
-rm -rf test/				递归删除
+rm -rf test/				递归删除test目录及其下所有文件
 rm -rf test/*				删除test下所有文件
 rm -rf oldboy*				匹配删除
 rm -rf ./*					删除当前目录下所有
@@ -560,6 +560,7 @@ echo -e "hello\nworld"
 echo 'hello world'		单引号，强引用，真正的所见即所得
 echo "$PS1"				双引号，弱引用，支持变量，会解析变量
 echo `hostname`			反引号，先执行反引号里面的命令，把结果交给外面命令，和$()作用一样
+echo $(hostname)
 echo hello world >a.txt	将hello world 写入a.txt文件中(存在，清空覆盖),a.txt没有会新建
 echo hello world >>a.txt	将hello world 写入a.txt文件中(存在，追加)，a.txt没有会新建
 ```
@@ -569,7 +570,7 @@ echo hello world >>a.txt	将hello world 写入a.txt文件中(存在，追加)，
 ```
 cat /root/a.txt		查看文件内容
 cat -n a.txt		显示行号
-cat -A a.txt		给每一行的结尾加标识符
+cat -A a.txt		给每一行的结尾加标识符$
 cat >a.txt<<EOF		创建a.txt文件，然后用EOF为写入结束符，然后写入信息，EOF结束，表示写入结束
 	hello
 	bye
@@ -637,12 +638,12 @@ grep -v				排除
 grep -n 			给过滤出来的内容，加上所在文件中的行号
 grep -c				统计过滤出的内容有几行
 grep -w				精确匹配，只过滤要过滤出来的字符，而不是包含该字符的字符串
+					比如hello world，grep -w he a.txt 不会匹配出hello world这行
 grep -o 			只显示过滤出来的内容
-grep ^root passwd	过滤passwd文件中以root开头的字符所有行
-grep root$ passwd	过滤passwd文件中以root结尾的字符所有行
+grep '^root' passwd	过滤passwd文件中以root开头的字符所有行
+grep 'root$' passwd	过滤passwd文件中以root结尾的字符所有行
 grep -n '^$' passwd	过滤空行,并显示该空行的行号
-grep -E 'root|halt' passwd	过滤含root或者halt的
-egrep 'root|halt' passwd	过滤含root或者halt的
+grep '\$' aaa.txt	将特殊符号$转义成普通字符串
 grep -A 2 'halt' passwd		匹配过滤显示出来的内容在向下匹配2行
 grep -B 3 'halt' passwd		匹配过滤显示出来的内容在向上匹配3行
 grep -C 2 'halt' passwd		匹配过滤显示出来的内容在向上向下各匹配2行
@@ -655,5 +656,211 @@ grep -C 2 'halt' passwd		匹配过滤显示出来的内容在向上向下各匹�
     * 		前面一个字符出现0此或0此以上
     .* 		所有
     [] 		整体，包含[]里面的字符
+```
+
+##### locate 根据数据库查找（**）
+
+安装 
+
+```
+yum install mlocate -y
+```
+
+```
+每次查找之前需要更新数据库
+updatedb
+然后再进行查找
+locate hostname
+支持正则
+locate -r hostname$		查找以hostname结尾的
+结果：
+	/etc/hostname
+    /etc/selinux/targeted/active/modules/100/hostname
+    /usr/bin/hostname
+    /usr/bin/nmtui-hostname
+    /usr/lib64/gettext/hostname
+```
+
+##### which 查找(***使用最多)
+
+```
+which hostname
+结果：(注意与locate的区别)
+	/usr/bin/hostname
+```
+
+##### whereis（不常用）
+
+```
+whereis hostname
+结果：
+	hostname: /usr/bin/hostname /etc/hostname /usr/share/man/man1/hostname.1.gz /usr/share/man/man5/hostname.5.gz
+```
+
+##### type
+
+```
+type hostname
+	查找结果 hostname is /usr/bin/hostname
+type cd
+	查找结果 cd is a shell builtin
+type -a cd
+	查找结果 
+	cd is a shell builtin
+	cd is /usr/bin/cd
+```
+
+##### find 查找(很强大，使用频率高，以后细说)
+
+```
+find / -type f -name 'hostname'
+	查找结果
+	/proc/sys/kernel/hostname
+    /etc/hostname
+    /tmp/hostname
+    /usr/bin/hostname
+    /usr/lib64/gettext/hostname
+    
+find / -type f -name '*hostname'    
+```
+
+##### 文件下载
+
+```
+curl 文件传输
+	curl -o 文件重命名 下载url
+```
+
+```
+查看yum官方源
+ll /etc/yum.repos.d/
+更换国内源(比如ali源)
+阿里源官网 https://opsx.alibaba.com => 镜像 => centos 帮助 =>找到对应版本链接下载
+删除官方源 rm -rf /etc/yum.repos.d/*
+添加阿里源 (选项-o 指定下载路径)
+curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+查看仓库 yum repolist
+安装wget工具 yum  install -y  wget
+安装扩展源 (选项-O 指定下载路径)
+wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
+
+下载
+sz 文件路径
+```
+
+##### 文件上传
+
+```
+安装
+yum install -y  lrzsz
+rz建议上传4g以下文件，上传的话会出问题，如果上传4g以上文件需使用xftp工具
+上传 => rz 回车，弹出选择上传文件对话框
+	   文件重复，会自动重命名
+```
+
+##### 字符处理
+
+```
+sort 排序
+sort -t ':' a.txt 			-t指定':'为分隔符 默认第一列进行排序，不指定默认以空格为分隔符		
+sort -t ':' -k2 a.txt 		-k指定'2'为第2列进行排序，不指定默认第一列
+sort -t ':' -nk2 a.txt 		-nk2指定'2'为第2列进行排序，同时使用n按照数字进行排序
+sort -t ':' -rnk2 a.txt		-rnk2指定'2'为第2列进行排序，同时按照数字进行排序,使用r倒序
+```
+
+```
+uniq 去重(此功能需要重复的行必须相邻，否则无法去重，所以需要先排序，让重复行相邻再去重)
+sort a.txt | uniq					排序后去重
+sort a.txt | uniq -c 				统计出现次数
+sort a.txt | uniq -c| sort -rn		再次以数字倒序排序
+```
+
+```
+cut 取列
+cut -d ':' -f7 a.txt				-d指定':'分隔符，-f7 取第7列
+cut -d ':' -f7 a.txt | sort | uniq -c	使用管道，对取出第7列，进行排序，去重
+cut -d ':' -f7 a.txt | sort | uniq -c |sort -n		管道可以连续使用，再以数字排序
+cut -d ':' -f7 a.txt | sort | uniq -c |sort -rn		再以数字倒序
+
+echo 'hello world !' | cut -c 1-5		-c 取指定字符
+```
+
+```
+tr 替换 无法单独对文件操作，需要用<a.txt,当然通过管道可以直接使用
+tr 'a' 'b' <a.txt			将a替换成b
+tr -d 'a'					删除所有'a'
+
+```
+
+```
+wc 统计 (统计列数会以特殊字符进行分隔统计)
+wc a.txt					统计全部： 行数 列数 字节数
+wc -l a.txt					-l 统计行数
+wc -w a.txt					-w 统计列数
+wc -c a.txt					-c 统计字节数
+```
+
+##### sed 擅长替换，可以增删改查(支持正则，在//中)
+
+```
+查
+sed -n '11p' services		查看services文件第11行
+sed -n '11,20p' services	查看services文件第11到20行，用逗号','，连续行
+sed -n '11p;20p' services	查看services文件11行和第20行，用分号';',不连续多行
+过滤
+sed -n '/root/p' passwd		过滤出root，使用/过滤的字符/
+sed -rn '/root|halt/p' passwd	r:让'|’生效，支持扩展正则，过滤多个字符
+删
+sed '5d' a.txt				删除第5行，d代表删除
+sed '5,10d' a.txt		    删除第5-10行，d代表删除
+sed '5;8d' a.txt		   	删除第5行和8行，d代表删除
+sed '/oldboy/d'	a.txt		删除匹配到到字符串所在行
+改
+sed 's#aaa#bbb#g' a.txt		s代表替换，g代表全局
+							将文件内的aaa替换成bbb，这里的#可以是@&等字符，通常使用#标识
+sed -i 's#aaa#bbb#g' a.txt		不加-i只是显示替换的结果，实际文件不生效，加上就会真正的修改替换了
+先备份后修改
+sed -i.bak 's#aaa#bbb#g' a.txt	替换时候顺便在当前文件夹备份该文件(a.txt.bak)
+替换
+sed '1,3s#aaa#bbb#g' a.txt		按第1行和第3行进行替换？
+sed 's#[0-9]#sb#g' a.txt		将所有单个数字替换成sb
+sed 's#[0-9]{1,}#sb#g' a.txt	连续数字替换成sb
+关闭selinux
+getenforce
+sed 's#^SELINUX=.*#SELINUX=disabled#g' /etc/sysconfig/selinux
+追加
+sed '2ahello' a.txt			2a,2代表第2行 a代表追加，即在第二行后追加hello
+sed '$ahello' a.txt			$a,追加到最后面
+插入
+sed '3iworld' a.txt			3i,3代表第3行，i代表插入，在第三行前面插入world
+sed '1iworld' a.txt			1i,插入到最前面
+```
+
+##### awk
+
+```
+取行
+awk 'NR==1' a.txt				NR代表行，取出第一行
+awk 'NR==1,NR==3' a.txt			取出第1-3行
+awk 'NR==1;NR==3' a.txt			取出第1行和3行
+awk 'NR>=2 && NR<=3' a.txt		&& 与关系，取出大于等于2且小于等于3的行
+awk 'NR<2 || NR>3' a.txt		|| 或关系，取出小于2或大于3的行
+过滤
+awk '/root/' a.txt				过滤包含root的字符的行
+awk '/root|halt/' a.txt			过滤包含root或halt的字符的行
+awk '!/\/sbin\/nologin/' a.txt	\代表转义，！代表取反
+取列
+awk -F; '{print $7}' a.txt			-F指定分隔符，默认指定空白字符，';'为分隔符，$7取第7列
+awk -F '[:]' '{print $7}' a.txt		$7列数，取第7列，可用多个分隔符
+awk -F '[:]' '{print $NF}' a.txt	$NF最后一列
+ip a s eth0 | awk 'NR==3' | awk -F '[ /]*' {print $3}  空格前面什么都没有也认为一列
+ip a s eth0 | awk -F '[ /]+' 'NR==3{print $3}'
+if config eth0 | awk 'NR==2{print $2}'
+if config eth0 | sed -nr '2s#.*t (.*) n.*#\1#gp'
+awk '{print $0,NR}' a.txt	添加行号在后
+awk '{print NR,$0}' a.txt	添加行号在前
+awk -F: '{print NF,$NF}' passwd		一个NF代表总列数
+awk -F: '{print NF,$0}' passwd		$0表示整行内容
+
 ```
 

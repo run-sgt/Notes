@@ -22,6 +22,7 @@ head -n 5 /etc/passwd
 tail -n 5 /etc/passwd
 8.显示/etc/services文件的第11行到第20行的内容
 head -n 20 /etc/services|tail -n 10
+grep -n '.' /etc/errvices | grep -A 9 '^11:'
 9.已知文件123.txt内容如下，请过滤出包含oldboy字符串的命令
 test
 OLDBOY
@@ -142,7 +143,8 @@ head -n 5 /etc/passwd
 5.显示/etc/passwd文件的最后5行内容。
 tail -n 5 /etc/passwd
 6.显示/etc/services文件的第11行到第20行的内容
-head -20 /etc/services|tail -10  
+head -20 /etc/services|tail -10
+grep -n '.' /etc/errvices | grep -A 9 '^11:'
 7.已知文件123.txt内容如下，请过滤出包含oldboy字符串的命令
 test
 OLDBOY
