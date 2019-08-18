@@ -150,15 +150,18 @@ project_name/
 ![1565669531146](md_img/1565669531146.png)
 
 ```
-在项目目录下新建：run.py
+在项目目录下新建：run.py, 用于在pycharm中运行cmd命令，结果显示在pycharm终端
 from scrapy.cmdline import execute
-execute(['scrapy', 'crawl', 'xiaohua']
+execute(['scrapy', 'crawl', 'pp01', '--nolog']
 ```
 
 ```
+改变标准输出的默认编码，解决cmd不能很好的兼容utf-8的问题，所以用gb18030
 import sys,os
 sys.stdout=io.TextIOWrapper(sys.stdout.buffer,encoding='gb18030')
 ```
+
+---
 
 ### Spiders
 
@@ -252,5 +255,9 @@ class AmazonSpider(scrapy.Spider):
 日志名默认为spider的名字
 self.logger.debug('=============>%s' %self.settings['BOT_NAME'])
 
+7.starts_requests()
+该方法用于发起第一个Requests请求，且必须返回一个可迭代对象，它在爬虫程序执行时就会被Scrapy调用，且只调用一次
 ```
+
+![1566111968180](md_img/1566111968180.png)
 
