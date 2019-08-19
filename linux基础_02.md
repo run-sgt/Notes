@@ -175,3 +175,252 @@ user01		ALL=(ALL)		/bin/cat,/bin/yum
 user01		ALL=(ALL)		NOPASSWD:/bin/cat,/bin/yum
 ```
 
+### 权限
+
+```bash
+-rw-r--r--
+属主 属组 其他用户
+
+r			4 可读
+w			2 可写
+x			1 可执行
+-			0 没有任何权限
+
+设置属主权限
+chmod u+x test.txt
+chmod u-x test.txt
+chmod u=rwx test.txt
+设置属组权限
+chmod g+x a.txt
+chmod g-x a.txt
+chmod g=rx a.txt
+设置其他用户权限
+chmod o+x a.txt
+chmod o-x a.txt
+chmod o=rx a.txt
+针对多个分别进行设置
+chmod u=rw,g=r,o=r test.txt
+针对三个同时设置
+chmod a+x a.txt
+
+通过数字设置权限
+chmod 644 a.txt
+
+递归赋予权限
+chmod -R 744 test	递归修改test目录及其下的所有文件的权限为744，但是当test下又创建新的文件后，创建的新文件权限为文件创建默认权限，和刚才修改的744不同步
+```
+
+#### 权限对文件的影响
+
+```
+只有r权限			只能查看文件，其他的不能操作
+只有w权限			不能使用vi命令进行修改，如果强制修改会覆盖原内容，只能追加
+w权限需要与r权限进行配合，不要给文件单独w权限，通常是rw
+只有x权限			什么都干不了，需要r权限配合，rx
+
+正常设置权限
+r rwr xr wx
+```
+
+#### 权限对目录的影响
+
+```bash
+目录r权限				是否能够查看目录下的列表，如果只有r权限，无法查看目录下的文件属性信息，只能？？表示
+目录w权限				是否能够对目录下的文件进行删除，移动等操作
+目录x权限				是否能够进入该目录
+
+目录r权限需要目录x权限配合
+目录w权限需要目录x权限配合，可以删除，新建文件的权限，如果要移动，需要目标目录有rw权限
+目录x权限只能进入目录，其他的操作都不能执行
+```
+
+#### 属主属组的修改
+
+```
+chown jsson test.txt		只修改属主，子文件不修改
+chown jsson. test.txt		同时修改属主和属组，子文件不修改
+chown .root test.txt		只修改属组，子文件不修改
+	选项 -R						递归修改，子文件也会被全部修改
+chgrp jason test.txt		只能修改属组
+
+超级管理员root用户创建的文件属主和属组就是root
+普通用户user用户创建的文件属主和属组就是user
+```
+
+#### 权限控制位
+
+```
+查看命令 stat test.log
+查看权限位 umask
+umask 033	临时修改控制权限位，默认值022，永久修改需要修改配置文件/etc/profile
+	计算目录权限位方法
+		umask的默认权限位是022,目录的最大权限是777，则系统默认创建的目录权限位777-022=755
+		即 目录权限 = 目录最大权限 - 默认权限
+	计算文件权限位方法
+		umask的默认权限位是022,文件的最大权限是666，则系统默认创建的目录权限位666-022=644，如果文件的权限位遇到奇数时候，奇数位+1
+		即 文件权限 = 文件最大权限 - 默认权限		
+```
+
+#### 特殊权限
+
+```
+setuid			执行命令的时候相当于该命令的所有者(属主)
+权限位是4位，第一位如果是4，则标识该文件有setuid权限
+大S和小s区别：	主要看文件的属主的x权限，如果有x权限，就是大s，没有就是大S
+
+setgid			共享目录，让所有用户在一个目录下创建的所有文件属主都是固定一个组 
+	使用	
+			groupadd	setgid_test
+			chown -R .setgid_test /opt/
+			chmod g+s /opt/
+			ll -d /opt/
+sticky		让所有用户在一个目录=只能管理的文件
+权限位是4位，第一位如果是2，则标识该文件有sticky权限
+chmod o+t /tmp/sgt
+```
+
+特殊属性(隐藏属性)
+
+```
+a			只能对文件进行追加的操作，其他权限模样，可读，可cp
+i			只能查看和cp，其他操作不允许
+隐藏属性查看方法
+lsattr test.txt
+--------------- test.txt	代表无特殊属性
+添加隐藏属性方法
+chattr +a test.txt
+------a-------- test.txt	代表有特殊属性了
+```
+
+#### 输入输出
+
+详情见[Linux系统管理-输入输出](https://www.increase93.com/base-10.html)
+
+##### 重定向
+
+```
+三个文件/dev/std*
+标准输入stdin
+标准输出stdout
+错误输出stderr
+```
+
+##### 输出重定向
+
+```
+ls sgt 2>a.log		当sgt不存在时候，后面的2代表将错误信息写入a.log文件中，>改成>>追加
+ls /tmp;sgt 2&>>a.log	;代表多命令输入，混合输入，同时将正确和错误的信息追加到a.log
+```
+
+##### 输入重定向
+
+```
+将原本要输出到屏幕的数据信息，重新定向到某个指定的文件中。比如：每天凌晨定时备份数据，希望将备份数据的结果保存到某个文件中。这样第二天通过查看文件的内容就知道昨天备份的数据是成功还是失败。
+```
+
+```
+tr命令使用
+```
+
+##### 管道
+
+```
+管道操作符号 "|" ，主要用来连接左右两个命令, 将左侧的命令的标准输出, 交给右侧命令的标准输入 
+PS: 无法传递标准错误输出至后者命令
+```
+
+##### tee技术
+
+```
+
+```
+
+##### 查找 find
+
+```
+命令	路径	选项	表达式	动作
+
+根据文件名称查找
+find /etc -name 'ifcfg-eth0' -print		-name 根据名称查找
+find /etc -name 'ifcfg-eth*' -print		-name 根据名称查找， *代表模糊查找
+find /data -iname 'test.log'			-iname 根据名称查找，忽略大小写
+
+根据文件类型查找
+find /opt -type d -ls					-type 根据文件类型查找
+find /etc -type l -ls					-type 根据文件类型查找
+	文件类型
+		f 普通文件
+		d 目录
+		l 软链接
+		b 块设备
+		c 字符设备
+		p 管道文件
+		s socket文件
+		
+根据文件大小查找		
+find /var/log -size -50k |xargs ls -lh		50k 等于50k(管道符不支持别名，需要ls -lh =>ll)
+find /var/log -size -50k |xargs ls -lh				-50k 小于50k
+find /var/log -type f -size +50k |xargs ls -lh		+50k 大于50k
+find /var/log -size +100k -size -200k |xargs ls -lh	大于100k小于200k
+find /var/log -size +100k -a -size -200k |xargs ls -lh	大于100k小于200k(-a代表并且，写一起也是一个意思)
+find /var/log -type f -size -1k -o -size +1M |xargs ls -lh  -o代表或者，小于1k或大于1M
+	-size		根据文件大小
+    	b		字节
+    	k		kb
+    	M、G	   使用大写
+    -a			与关系
+    -o			或关系
+
+根据属主和属组查找文件
+find /opt/ -user jason -ls			-user 根据属主为jason查找文件
+find /opt/ -user jason -group jason -ls		根据属主为jason且属组为jason查找文件
+find /opt/ \( -user jason -o -group jason \) -ls  根据属主为jason或属组为jason
+find /opt/ -nouser -ls				没有属主
+find /opt/ -nogroup -ls				没有属组
+
+根据目录的阶级 深度查找
+-maxdepth
+
+根据权限查找
+find /opt/ -perm -444 -ls		包含读权限，全局，每一项都包含
+find /opt/ -perm 644 -ls		精确查找
+find /opt/ -perm /444 -ls		包含，只要有一项满足就行
+find / -perm -1000 -ls 			根据特殊权限
+find / -perm -2000 -ls 			根据特殊权限
+find / -perm -4000 -ls 			根据特殊权限
+
+根据修改时间查找
+find /opt/ -mtime -7 -ls		7天以内
+find /opt/ -mtime +7 -ls		7天以前
+find /opt/ -mtime 7 -ls			第7天
+find /opt/ -mtime +7 |xargs rm -f	把7天前的数据删除
+```
+
+find**默认动作**
+
+```
+-print		打印，默认动作
+-ls			以长格式形式显示文件信息，详细信息的属性信息
+-delete		把查找出来的数据删除，只能删除文件或空目录，无法递归删除
+-ok			后面跟shell命令，会询问是否确定操作
+	find /opt/ -mtime -7 -ok rm -f {} \;
+-exec		后面跟shell命令，但不需要提示，直接操作
+	find /opt/ -mtime -7 -exec rm -f {} \;	
+```
+
+##### find 组合使用
+
+```
+mkdir /opt/{01..05}
+将查找的内容复制到指定目录下的5种方法
+find /var/log/ -type f -size +200k -exec cp -v {} /opt/01/ \;
+
+find /var/log/ -type f -size +200k | xargs cp -t /opt/02
+
+find /var/log/ -type f -size +200k | xargs -I {} cp {} /opt/03
+
+cp `find /var/log/ -type f -size +200k` /opt/04
+
+cp $(find /var/log/ -type f -size +200k) /opt/05
+```
+
